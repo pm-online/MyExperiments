@@ -1,0 +1,136 @@
+<!--
+AUTHOR : PANKAJ KUMAR MISHRA
+PURPOSE : To upload an image using the camera device of the smartphone and upload it to the remote server
+CREATED ON : Oct 27, 2015
+-->
+
+<!DOCTYPE html>
+<html>
+	<head>
+ 		<title>Image Upload</title>
+ 		<script type="text/javascript">
+
+		/*
+			The following function takes the photo and process it to get the name, size and type of the image
+		*/		
+
+ 		function BrowsedFile() 
+		{
+ 			var count = document.getElementById('FileToUpload').files.length;
+ 			document.getElementById('details').innerHTML = "";
+ 			for (var index = 0; index < count; index ++)
+ 			{
+ 				var file = document.getElementById('FileToUpload').files[index];
+ 				var fileSize = 0;
+ 				if (file.size > 1024 * 1024)
+					/* Calculates the size of the image in MB */
+ 					fileSize = (Math.round(file.size * 100 / (1024 * 1024)) / 100).toString() + 'MB';
+ 				else
+					/* Calculates the size of the image in MB */
+ 					fileSize = (Math.round(file.size * 100 / 1024) / 100).toString() + 'KB';
+ 				document.getElementById('details').innerHTML += 'Image Name : ' + file.name + '<br>Image Size : ' + fileSize + '<br>Image Type : ' + file.type;
+ 				document.getElementById('details').innerHTML += '<p>';
+ 			}
+ 		}
+ 
+		/*
+			The following function invokes the other functions and calls the php file to upload the image to the server 
+		*/			
+
+      	function Upload() 
+		{
+ 			var fd = new FormData();
+ 			var count = document.getElementById('FileToUpload').files.length;
+ 			for (var index = 0; index < count; index ++)
+ 			{
+ 				var file = document.getElementById('FileToUpload').files[index];
+ 				fd.append('myFile', file);
+ 			}
+ 			var xmlhttpreq = new XMLHttpRequest();
+ 			xmlhttpreq.upload.addEventListener("progress", ViewProgress, false);
+ 			xmlhttpreq.addEventListener("load", UploadOver, false);
+ 			xmlhttpreq.addEventListener("error", FailedUpload, false);
+ 			xmlhttpreq.addEventListener("abort", CancelledUpload, false);
+ 			xmlhttpreq.open("POST", "imageupload.php");
+ 			xmlhttpreq.send(fd);
+ 		}
+
+		/*
+			The function shows the progress state of the file upload
+     	*/ 		
+
+      	function ViewProgress(evt) 
+		{
+ 			if (evt.lengthComputable) 
+			{
+ 				var percentComplete = Math.round(evt.loaded * 100 / evt.total);
+ 				document.getElementById('progress').innerHTML = percentComplete.toString() + '%';
+ 			}
+ 			else 
+			{
+ 				document.getElementById('progress').innerHTML = 'Unable to process';
+ 			}
+ 		}
+		
+		/*
+			This function invokes an event when the server replies to the response
+		*/
+ 
+      	function UploadOver(evt) 
+		{
+ 			alert(evt.target.responseText);
+ 		}
+
+		/*
+			This function notifies if the uploading is failed
+		*/
+ 
+      	function FailedUpload(evt) 
+		{
+ 			alert("An error occured. Uploading aborted !");
+ 		}
+
+		/*
+			This function notifies if the uploading is cancelled
+		*/
+ 
+      	function CancelledUpload(evt) 
+		{
+ 			alert("Uploading cancelled !");
+ 		}
+ 
+    	</script>
+ 	</head>
+ 
+	<body>
+ 		<form id="form1" enctype="multipart/form-data" method="post">
+		<div align="center"><h2>Image Upload Using HTML5</h2></div>
+		<hr>
+		<table border=0 align="center">
+			<tr>
+				<td>
+					<input type="file" name="FileToUpload" id="FileToUpload" onchange="BrowsedFile();" accept="image/*" capture="camera" />
+					<input type="button" onclick="Upload()" value="Click to Upload" />
+				</td>
+			</tr>
+		</table>
+
+		<table border=0 align="center">
+			<tr>
+				<td>
+					<div id="details"></div>
+				</td>
+			</tr>
+		</table>
+
+		<table border=0 align="center">
+			<tr>
+				<td>
+					<div id="progress"></div>
+				</td>
+			</tr>
+		</table>
+
+  		</form>
+ 	</body>
+ </html>
